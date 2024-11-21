@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Generator</title>
+  <title>AI Agent</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -32,17 +32,17 @@
   </style>
 </head>
 <body>
-  <h1>Task Generator</h1>
+  <h1>AI Agent</h1>
   <form id="correction-form">
-    <label for="inputText">Enter Task Description:</label><br>
+    <label for="inputText">What do you want to do?:</label><br>
     <textarea id="inputText" rows="5" placeholder="Describe the task..."></textarea><br><br>
-    <button type="submit" id="submit-btn">Generate Task</button>
+    <button type="submit" id="submit-btn">Analyze</button>
     <div id="progress-bar"></div>
   </form>
   <div id="task-container">
-    <h2>Generated Task</h2>
-    <p id="task-output">Task description will appear here.</p>
-    <button id="execute-btn" style="display: none;">Execute Task</button>
+    <h2>Analyzed  Task</h2>
+    <p id="task-output">Below things will happen on your system</p>
+    <button id="execute-btn" style="display: none;">Confirm</button>
   </div>
   <pre id="output"></pre>
 
