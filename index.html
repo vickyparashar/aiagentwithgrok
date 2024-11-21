@@ -197,17 +197,45 @@
 
     // Function to format the extracted text and display it
     function formatExtractedText(code) {
-      const blockPattern = /<#(.*?)#>/gs;
-      const matches = [...code.matchAll(blockPattern)];
-      let formattedText = '';
-      
-      matches.forEach((match) => {
-        // Format text inside <# ... #> block as a list
-        formattedText += `<ul><li class="expanded-content">${match[1].trim().replace(/\n/g, '</li><li>')}</li></ul>`;
-      });
+    // Patterns for comments
+    const singleLineCommentPattern = /^#\s*(.+)$/gm;
+    const multiLineCommentPattern = /<#([\s\S]*?)#>/g;
 
-      return formattedText;
+    let formattedText = '';
+    let comments = '';
+    let nonComments = code;
+
+    // Extract single-line comments
+    let singleLineMatches;
+    while ((singleLineMatches = singleLineCommentPattern.exec(code)) !== null) {
+        comments += `<li>${singleLineMatches[1].trim()}</li>`;
     }
+
+    // Extract multi-line comments
+    let multiLineMatches;
+    while ((multiLineMatches = multiLineCommentPattern.exec(code)) !== null) {
+        comments += `<li>${multiLineMatches[1].trim().replace(/\n/g, '</li><li>')}</li>`;
+    }
+
+    // Format comments as a list
+    if (comments) {
+        formattedText += `<ul class="comments">${comments}</ul>`;
+    }
+
+    // Remove comments from non-comments text
+    nonComments = nonComments
+        .replace(singleLineCommentPattern, '') // Remove single-line comments
+        .replace(multiLineCommentPattern, '') // Remove multi-line comments
+        .trim(); // Remove leading/trailing whitespace
+
+    // Format non-comments in small font
+    if (nonComments) {
+        formattedText += `<small class="code-content">${nonComments}</small>`;
+    }
+
+    return formattedText;
+}
+
 
     // Function to execute the task
     async function executeTask(script) {
