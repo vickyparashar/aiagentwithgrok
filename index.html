@@ -6,45 +6,101 @@
   <title>AI Agent</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f7fc;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #4caf50;
+    }
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
     }
     textarea {
       width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      margin-bottom: 15px;
     }
     button {
-      padding: 10px 20px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 12px 20px;
       font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
     }
     #progress-bar {
       width: 0%;
-      height: 5px;
+      height: 6px;
       background-color: #4caf50;
       margin-top: 10px;
       display: none;
+      border-radius: 3px;
+    }
+    #task-container {
+      display: none;
+      margin-top: 20px;
     }
     #output {
-      margin-top: 20px;
       white-space: pre-wrap;
-      font-size: 16px;
+      font-size: 14px;
+      color: #555;
+      margin-top: 20px;
+    }
+    #execute-btn {
+      display: inline-block;
+      margin-top: 10px;
+      background-color: #2196F3;
+    }
+    #task-output {
+      font-size: 18px;
+      font-weight: bold;
       color: #333;
     }
   </style>
 </head>
 <body>
-  <h1>AI Agent</h1>
-  <form id="correction-form">
-    <label for="inputText">What do you want to do?:</label><br>
-    <textarea id="inputText" rows="5" placeholder="Describe the task..."></textarea><br><br>
-    <button type="submit" id="submit-btn">Analyze</button>
-    <div id="progress-bar"></div>
-  </form>
-  <div id="task-container">
-    <h2>Analyzed  Task</h2>
-    <p id="task-output">Below things will happen on your system</p>
-    <button id="execute-btn" style="display: none;">Confirm</button>
+  <div class="container">
+    <h1>AI Agent</h1>
+    <form id="correction-form">
+      <label for="inputText">What do you want to do?</label><br>
+      <textarea id="inputText" rows="5" placeholder="Describe the task..."></textarea><br>
+      <button type="submit" id="submit-btn">Analyze</button>
+      <div id="progress-bar"></div>
+    </form>
+    <div id="task-container">
+      <h2 id="task-output">Analyzed Task</h2>
+      <p id="task-description">Below things will happen on your system</p>
+      <button id="execute-btn" style="display: none;">Confirm</button>
+    </div>
+    <pre id="output"></pre>
   </div>
-  <pre id="output"></pre>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -57,6 +113,7 @@
         const output = document.getElementById('output');
         const taskOutput = document.getElementById('task-output');
         const executeButton = document.getElementById('execute-btn');
+        const taskContainer = document.getElementById('task-container');
 
         if (!inputText.trim()) {
           output.textContent = "Please enter some task description.";
@@ -69,6 +126,7 @@
         progressBar.style.width = '0%';
         output.textContent = '';
         taskOutput.textContent = 'Generating your task...';
+        taskContainer.style.display = 'none';
         
         try {
           // Simulate progress bar animation
@@ -93,6 +151,7 @@
           const data = await response.json();
 
           if (response.ok) {
+            taskContainer.style.display = 'block';
             taskOutput.textContent = `Task generated successfully!`;
             output.textContent = `Task Description:\n${data.powershellCode}`;
             executeButton.style.display = 'block';  // Show execute button
