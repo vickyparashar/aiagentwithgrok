@@ -60,7 +60,7 @@ app.post('/generate', async (req, res) => {
 
     // Extract the generated PowerShell code from the response
     let powershellCode = response.data.choices[0].message.content;
-    powershellCode = `# powershell\n` + powershellCode.replace(/`/g, '\\`') + `\n# \`\`\``;
+    
     
     // Generate a unique filename using UUID
     const uniqueFilename = `${uuidv4()}_powershell_script.ps1`;
