@@ -58,8 +58,13 @@ app.post('/generate', async (req, res) => {
       }
     );
 
-    // Extract the generated PowerShell code from the response
-    let powershellCode = response.data.choices[0].message.content;
+// Extract the generated PowerShell code from the response
+let powershellCode = response.data.choices[0].message.content;
+
+// Comment the first and last lines of the PowerShell code
+powershellCode = `# powershell\n` + powershellCode + `\n# \`\`\``;
+
+
     
     
     // Generate a unique filename using UUID
