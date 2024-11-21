@@ -108,18 +108,6 @@
       padding-left: 20px;
       color: green;
     }
-    .show-all-btn {
-      background-color: #2196F3;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 15px;
-    }
-    .show-all-btn:hover {
-      background-color: #1e88e5;
-    }
     .expanded-content {
       display: none;
     }
@@ -139,7 +127,6 @@
       <p id="task-description">Below is the breakdown of the task you requested:</p>
       <div id="task-details"></div>
       <button id="execute-btn" style="display: none;">Confirm and Execute</button>
-      <button class="show-all-btn" id="show-all-btn" style="display: none;">Show All Content</button>
     </div>
   </div>
 
@@ -155,7 +142,6 @@
         const taskOutput = document.getElementById('task-output');
         const taskDetails = document.getElementById('task-details');
         const executeButton = document.getElementById('execute-btn');
-        const showAllBtn = document.getElementById('show-all-btn');
 
         if (!inputText.trim()) {
           alert("Please enter a task description.");
@@ -194,7 +180,6 @@
             taskOutput.textContent = "Task Generated Successfully!";
             taskDetails.innerHTML = formatExtractedText(data.powershellCode);
             executeButton.style.display = 'block';  // Show execute button
-            showAllBtn.style.display = 'block';  // Show the "Show All" button
             executeButton.onclick = () => executeTask(data.powershellCode);  // Attach execution handler
           } else {
             alert('Error: ' + data.error);
@@ -207,15 +192,6 @@
           submitButton.disabled = false;
           progressBar.style.display = 'none';
         }
-      });
-
-      // Toggle full content visibility
-      document.getElementById('show-all-btn').addEventListener('click', function() {
-        const expandedContent = document.querySelectorAll('.expanded-content');
-        expandedContent.forEach(content => {
-          content.style.display = content.style.display === 'none' ? 'block' : 'none';
-        });
-        this.textContent = this.textContent === 'Show All Content' ? 'Hide Content' : 'Show All Content';
       });
     });
 
