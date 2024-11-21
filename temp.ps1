@@ -1,27 +1,25 @@
 # ```powershell
 <#
-.SYNOPSIS
-    This script checks if the current user has administrative rights.
-
-.DESCRIPTION
-    - Retrieves the current user's identity.
-    - Checks if the user is part of the Administrators group.
-    - Outputs whether the user has admin rights or not.
+    This script will:
+    - Delete all files inside the folder C:\Vicky\tools\test\
+    - Not delete subfolders or their contents
+    - Provide feedback on the number of files deleted
 #>
 
-# Get the current user's identity
-$currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+# Set the path to the folder
+$folderPath = "C:\Vicky\tools\test\"
 
-# Create a WindowsPrincipal object for the current user
-$principal = New-Object System.Security.Principal.WindowsPrincipal($currentUser)
+# Get all files in the folder
+$files = Get-ChildItem -Path $folderPath -File
 
-# Check if the user is in the Administrators group
-$isAdmin = $principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
+# Count the number of files
+$fileCount = $files.Count
 
-# Output the result
-if ($isAdmin) {
-    Write-Output "The current user has administrative rights."
-} else {
-    Write-Output "The current user does not have administrative rights."
+# Delete each file
+foreach ($file in $files) {
+    Remove-Item -Path $file.FullName -Force
 }
+
+# Output the number of files deleted
+Write-Output "Deleted $fileCount files from $folderPath"
 # ```
