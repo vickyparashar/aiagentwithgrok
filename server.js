@@ -58,15 +58,19 @@ app.post('/generate', async (req, res) => {
       }
     );
 
-// Extract the generated PowerShell code from the response
-let powershellCode = response.data.choices[0].message.content;
+  // Extract the generated PowerShell code from the response
+  let powershellCode = response.data.choices[0].message.content;
 
-// Comment the first and last lines of the PowerShell code
-powershellCode = `# powershell\n` + powershellCode + `\n# \`\`\``;
+  // Split the PowerShell code into lines
+  let lines = powershellCode.split('\n');
 
+  // Comment out the first and last line
+  lines[0] = `# ${lines[0]}`;  // Comment the first line
+  lines[lines.length - 1] = `# ${lines[lines.length - 1]}`;  // Comment the last line
 
-    
-    
+  // Join the modified lines back into a single string
+  powershellCode = lines.join('\n');
+
     // Generate a unique filename using UUID
     const uniqueFilename = `${uuidv4()}_powershell_script.ps1`;
     const filePath = path.join(__dirname, 'output', uniqueFilename);
