@@ -6,6 +6,9 @@ const path = require('path');
 const { exec } = require('child_process');
 const { v4: uuidv4 } = require('uuid');
 
+// Bypass the certificate verification (only for local testing)
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 // Create an Express app
 const app = express();
 const PORT = 3000;
@@ -55,19 +58,18 @@ app.post('/generate', async (req, res) => {
       }
     );
 
+    // Extract the generated PowerShell code from the response
+    let taskDescription = response.data.choices[0].message.content;
 
-  // Extract the generated PowerShell code from the response
-  let taskDescription = response.data.choices[0].message.content;
+    // Split the PowerShell code into lines
+    let lines = taskDescription.split('\n');
 
-  // Split the PowerShell code into lines
-  let lines = taskDescription.split('\n');
+    // Comment out the first and last line
+    lines[0] = `# ${lines[0]}`;  // Comment the first line
+    lines[lines.length - 1] = `# ${lines[lines.length - 1]}`;  // Comment the last line
 
-  // Comment out the first and last line
-  lines[0] = `# ${lines[0]}`;  // Comment the first line
-  lines[lines.length - 1] = `# ${lines[lines.length - 1]}`;  // Comment the last line
-
-  // Join the modified lines back into a single string
-  taskDescription = lines.join('\n');
+    // Join the modified lines back into a single string
+    taskDescription = lines.join('\n');
 
     // Generate a unique filename using UUID
     const uniqueFilename = `${uuidv4()}_task.ps1`;
