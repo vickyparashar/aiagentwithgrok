@@ -185,7 +185,7 @@
           });
 
           clearInterval(progressInterval);
-          progressBar.style.width = '100%';
+          progressBar.style.width = '100%' ;
 
           const data = await response.json();
 
@@ -227,7 +227,7 @@
       
       matches.forEach((match) => {
         // Format text inside <# ... #> block as a list
-        formattedText += `<ul><li>${match[1].trim().replace(/\n/g, '</li><li>')}</li></ul>`;
+        formattedText += `<ul><li class="expanded-content">${match[1].trim().replace(/\n/g, '</li><li>')}</li></ul>`;
       });
 
       return formattedText;
@@ -249,7 +249,8 @@
           alert('Failed to execute task: ' + data.error);
         }
       } catch (error) {
-        alert('Error executing task: ' + error.message);
+        alert('Error: Unable to execute task.');
+        console.error(error);
       }
     }
   </script>
