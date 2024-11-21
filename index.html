@@ -224,24 +224,26 @@
 
     // Function to format the extracted text and display it
     function formatExtractedText(code) {
-      const commentPatterns = [
-        /<#([\s\S]*?)#>/g,            // Multi-line block comments
-        /#([^\n]*)/g,                 // Single-line comments
-        /<##([\s\S]*?)##>/g           // Documentation comments
-      ];
+  const blockPattern = /<#([\s\S]*?)#>/g;            // Multi-line block comments
+  const singleLinePattern = /#(.*?$)/gm;              // Single-line comments
+  
+  let formattedText = '';
 
-      let formattedText = '';
+  // Extract and format multi-line block comments
+  const blockMatches = [...code.matchAll(blockPattern)];
+  blockMatches.forEach((match) => {
+    formattedText += `<ul><li class="expanded-content">${match[1].trim().replace(/\n/g, '</li><li>')}</li></ul>`;
+  });
 
-      commentPatterns.forEach((pattern) => {
-        const matches = [...code.matchAll(pattern)];
-        matches.forEach((match) => {
-          // Format each matched comment
-          formattedText += `<ul><li class="expanded-content">${match[1].trim().replace(/\n/g, '</li><li>')}</li></ul>`;
-        });
-      });
+  // Extract and format single-line comments
+  const singleLineMatches = [...code.matchAll(singleLinePattern)];
+  singleLineMatches.forEach((match) => {
+    formattedText += `<ul><li class="expanded-content">${match[1].trim()}</li></ul>`;
+  });
 
-      return formattedText;
-    }
+  return formattedText;
+}
+
 
     // Function to format the extracted text and display it in small text format
     function formatCompleteText(code) {
