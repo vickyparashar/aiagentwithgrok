@@ -1,11 +1,9 @@
-"use strict";
-
-// Import required modules
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
 const { v4: uuidv4 } = require('uuid');
 
 // Create an Express app
@@ -43,7 +41,6 @@ app.post('/generate', async (req, res) => {
     stream: false,
     temperature: 0
   };
-  
 
   try {
     // Make the API call to Grok-Beta
@@ -58,37 +55,58 @@ app.post('/generate', async (req, res) => {
       }
     );
 
+
   // Extract the generated PowerShell code from the response
-  let powershellCode = response.data.choices[0].message.content;
+  let taskDescription = response.data.choices[0].message.content;
 
   // Split the PowerShell code into lines
-  let lines = powershellCode.split('\n');
+  let lines = taskDescription.split('\n');
 
   // Comment out the first and last line
   lines[0] = `# ${lines[0]}`;  // Comment the first line
   lines[lines.length - 1] = `# ${lines[lines.length - 1]}`;  // Comment the last line
 
   // Join the modified lines back into a single string
-  powershellCode = lines.join('\n');
+  taskDescription = lines.join('\n');
 
     // Generate a unique filename using UUID
-    const uniqueFilename = `${uuidv4()}_powershell_script.ps1`;
+    const uniqueFilename = `${uuidv4()}_task.ps1`;
     const filePath = path.join(__dirname, 'output', uniqueFilename);
 
-    // Create the output directory if it doesn't exist
-    if (!fs.existsSync(path.join(__dirname, 'output'))) {
-      fs.mkdirSync(path.join(__dirname, 'output'));
-    }
+    // Write the task code to a file inside the output folder
+    fs.writeFileSync(filePath, taskDescription, 'utf8');
 
-    // Write PowerShell code to a file inside the output folder
-    fs.writeFileSync(filePath, powershellCode, 'utf8');
-
-    // Send back the response and file path to the client
-    res.json({ message: "PowerShell script generated successfully!", filePath: filePath, powershellCode: powershellCode });
+    // Send back the response and task description to the client
+    res.json({ message: "Task generated successfully!", filePath: filePath, powershellCode: taskDescription });
 
   } catch (error) {
-    console.error("Error generating PowerShell script:", error);
-    res.status(500).json({ error: "Failed to generate PowerShell script." });
+    console.error("Error generating task:", error);
+    res.status(500).json({ error: "Failed to generate task." });
+  }
+});
+
+// Execute the task (PowerShell code)
+app.post('/execute', async (req, res) => {
+  const { script } = req.body;
+
+  try {
+    // Save the script to a temporary file
+    const tempFilePath = path.join(__dirname, 'temp.ps1');
+    fs.writeFileSync(tempFilePath, script, 'utf8');
+
+    // Execute the PowerShell script
+    exec(`powershell -ExecutionPolicy Bypass -File ${tempFilePath}`, (error, stdout, stderr) => {
+      if (error) {
+        return res.status(500).json({ error: error.message });
+      }
+      if (stderr) {
+        return res.status(500).json({ error: stderr });
+      }
+      res.json({ message: "Task executed successfully!" });
+    });
+  } catch (error) {
+    console.error("Error executing task:", error);
+    res.status(500).json({ error: "Failed to execute task." });
   }
 });
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PowerShell Script Generator</title>
+  <title>Task Generator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -32,13 +32,18 @@
   </style>
 </head>
 <body>
-  <h1>PowerShell Script Generator</h1>
+  <h1>Task Generator</h1>
   <form id="correction-form">
-    <label for="inputText">Enter Text:</label><br>
-    <textarea id="inputText" rows="5" placeholder="Type your text here..."></textarea><br><br>
-    <button type="submit" id="submit-btn">Generate PowerShell Script</button>
+    <label for="inputText">Enter Task Description:</label><br>
+    <textarea id="inputText" rows="5" placeholder="Describe the task..."></textarea><br><br>
+    <button type="submit" id="submit-btn">Generate Task</button>
     <div id="progress-bar"></div>
   </form>
+  <div id="task-container">
+    <h2>Generated Task</h2>
+    <p id="task-output">Task description will appear here.</p>
+    <button id="execute-btn" style="display: none;">Execute Task</button>
+  </div>
   <pre id="output"></pre>
 
   <script>
@@ -50,9 +55,11 @@
         const submitButton = document.getElementById('submit-btn');
         const progressBar = document.getElementById('progress-bar');
         const output = document.getElementById('output');
+        const taskOutput = document.getElementById('task-output');
+        const executeButton = document.getElementById('execute-btn');
 
         if (!inputText.trim()) {
-          output.textContent = "Please enter some text.";
+          output.textContent = "Please enter some task description.";
           return;
         }
 
@@ -61,7 +68,8 @@
         progressBar.style.display = 'block';
         progressBar.style.width = '0%';
         output.textContent = '';
-
+        taskOutput.textContent = 'Generating your task...';
+        
         try {
           // Simulate progress bar animation
           const progressInterval = setInterval(() => {
@@ -85,7 +93,10 @@
           const data = await response.json();
 
           if (response.ok) {
-            output.textContent = `PowerShell script generated successfully! Saved at: ${data.filePath}\n\nGenerated Script:\n${data.powershellCode}`;
+            taskOutput.textContent = `Task generated successfully!`;
+            output.textContent = `Task Description:\n${data.powershellCode}`;
+            executeButton.style.display = 'block';  // Show execute button
+            executeButton.onclick = () => executeTask(data.powershellCode);  // Attach execution handler
           } else {
             output.textContent = `Error: ${data.error}`;
           }
@@ -99,6 +110,26 @@
         }
       });
     });
+
+    // Function to execute the task
+    async function executeTask(script) {
+      try {
+        const response = await fetch('/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ script })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          alert('Task executed successfully!');
+        } else {
+          alert('Failed to execute task: ' + data.error);
+        }
+      } catch (error) {
+        alert('Error executing task: ' + error.message);
+      }
+    }
   </script>
 </body>
 </html>
