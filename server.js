@@ -30,8 +30,9 @@ app.post('/generate', async (req, res) => {
     messages: [
       {
         role: "system",
-        content: `Your job is to generate PowerShell scripts for Windows systems.
-Ensure the script is syntactically correct and optimized for Windows environments. Do not include extra explanations or details. The script should accomplish the described task directly.`
+        content: `Your task is to first provide a simple, bullet-point explanation of what the script will do, and format it as comments in the PowerShell script.
+  Then, generate only the executable PowerShell code without any additional explanations, ensuring the script is ready to run directly in PowerShell. 
+  Do not include any extra details outside of the explanation in comments and the executable code.`
       },
       {
         role: "user",
@@ -42,6 +43,7 @@ Ensure the script is syntactically correct and optimized for Windows environment
     stream: false,
     temperature: 0
   };
+  
 
   try {
     // Make the API call to Grok-Beta
@@ -57,8 +59,9 @@ Ensure the script is syntactically correct and optimized for Windows environment
     );
 
     // Extract the generated PowerShell code from the response
-    const powershellCode = response.data.choices[0].message.content;
-
+    let powershellCode = response.data.choices[0].message.content;
+    powershellCode = `# powershell\n` + powershellCode.replace(/`/g, '\\`') + `\n# \`\`\``;
+    
     // Generate a unique filename using UUID
     const uniqueFilename = `${uuidv4()}_powershell_script.ps1`;
     const filePath = path.join(__dirname, 'output', uniqueFilename);
