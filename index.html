@@ -108,9 +108,11 @@
       padding-left: 20px;
       color: green;
     }
-    #task-complete-details ul {
+    #task-complete-details{
+      display: none;
       list-style-type: disc;
       padding-left: 20px;
+      font-size: x-small;
       color: rgb(96, 97, 96);
     }
     .expanded-content {
@@ -229,10 +231,11 @@ function formatCompleteText(code) {
     let formattedText = '';
     code.split('\n').forEach((line) => {
         // Format each line with small text styling
-        formattedText += `<ul><li class="expanded-content" style="font-size: small;">${line.trim()}</li></ul>`;
+        formattedText += `{${line.trim()}}\n`;
     });
-    return formattedText;
+    return formattedText.trim();
 }
+
 
 
 
