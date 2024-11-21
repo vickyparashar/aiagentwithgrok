@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PowerShell Script Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    textarea {
+      width: 100%;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #progress-bar {
+      width: 0%;
+      height: 5px;
+      background-color: #4caf50;
+      margin-top: 10px;
+      display: none;
+    }
+    #output {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>PowerShell Script Generator</h1>
+  <form id="correction-form">
+    <label for="inputText">Enter Text:</label><br>
+    <textarea id="inputText" rows="5" placeholder="Type your text here..."></textarea><br><br>
+    <button type="submit" id="submit-btn">Generate PowerShell Script</button>
+    <div id="progress-bar"></div>
+  </form>
+  <pre id="output"></pre>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('correction-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const inputText = document.getElementById('inputText').value;
+        const submitButton = document.getElementById('submit-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const output = document.getElementById('output');
+
+        if (!inputText.trim()) {
+          output.textContent = "Please enter some text.";
+          return;
+        }
+
+        // Disable the button and show the progress bar
+        submitButton.disabled = true;
+        progressBar.style.display = 'block';
+        progressBar.style.width = '0%';
+        output.textContent = '';
+
+        try {
+          // Simulate progress bar animation
+          const progressInterval = setInterval(() => {
+            const currentWidth = parseInt(progressBar.style.width);
+            if (currentWidth < 80) {
+              progressBar.style.width = currentWidth + 10 + '%';
+            }
+          }, 300);
+
+          // Send input text to the server
+          const response = await fetch('/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: inputText })
+          });
+
+          // Stop progress bar animation
+          clearInterval(progressInterval);
+          progressBar.style.width = '100%';
+
+          const data = await response.json();
+
+          if (response.ok) {
+            output.textContent = `PowerShell script generated successfully! Saved at: ${data.filePath}\n\nGenerated Script:\n${data.powershellCode}`;
+          } else {
+            output.textContent = `Error: ${data.error}`;
+          }
+        } catch (error) {
+          output.textContent = 'Error: Something went wrong.';
+          console.error(error);
+        } finally {
+          // Enable the button and hide the progress bar
+          submitButton.disabled = false;
+          progressBar.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
