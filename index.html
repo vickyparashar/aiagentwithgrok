@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Agent</title>
+  <title>AI Task Analyzer</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -19,6 +19,7 @@
     h1 {
       text-align: center;
       color: #4caf50;
+      margin-bottom: 20px;
     }
     .container {
       background-color: white;
@@ -47,6 +48,7 @@
       cursor: pointer;
       transition: background-color 0.3s;
       width: 100%;
+      margin-top: 10px;
     }
     button:hover {
       background-color: #45a049;
@@ -67,39 +69,78 @@
       display: none;
       margin-top: 20px;
     }
-    #output {
+    #task-output {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    #task-description {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #666;
+    }
+    pre {
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 5px;
       white-space: pre-wrap;
-      font-size: 14px;
-      color: #555;
+      word-wrap: break-word;
+      font-size: 16px;
       margin-top: 20px;
     }
     #execute-btn {
       display: inline-block;
-      margin-top: 10px;
       background-color: #2196F3;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+      width: 100%;
     }
-    #task-output {
-      font-size: 18px;
-      font-weight: bold;
-      color: #333;
+    #execute-btn:hover {
+      background-color: #1e88e5;
+    }
+    #task-details ul {
+      list-style-type: disc;
+      padding-left: 20px;
+      color: green;
+    }
+    .show-all-btn {
+      background-color: #2196F3;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 15px;
+    }
+    .show-all-btn:hover {
+      background-color: #1e88e5;
+    }
+    .expanded-content {
+      display: none;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>AI Agent</h1>
+    <h1>AI Task Analyzer</h1>
     <form id="correction-form">
-      <label for="inputText">What do you want to do?</label><br>
-      <textarea id="inputText" rows="5" placeholder="Describe the task..."></textarea><br>
-      <button type="submit" id="submit-btn">Analyze</button>
+      <label for="inputText">Describe your task here:</label><br>
+      <textarea id="inputText" rows="5" placeholder="What do you want to automate?"></textarea><br>
+      <button type="submit" id="submit-btn">Analyze Task</button>
       <div id="progress-bar"></div>
     </form>
     <div id="task-container">
       <h2 id="task-output">Analyzed Task</h2>
-      <p id="task-description">Below things will happen on your system</p>
-      <button id="execute-btn" style="display: none;">Confirm</button>
+      <p id="task-description">Below is the breakdown of the task you requested:</p>
+      <div id="task-details"></div>
+      <button id="execute-btn" style="display: none;">Confirm and Execute</button>
+      <button class="show-all-btn" id="show-all-btn" style="display: none;">Show All Content</button>
     </div>
-    <pre id="output"></pre>
   </div>
 
   <script>
@@ -110,24 +151,23 @@
         const inputText = document.getElementById('inputText').value;
         const submitButton = document.getElementById('submit-btn');
         const progressBar = document.getElementById('progress-bar');
-        const output = document.getElementById('output');
-        const taskOutput = document.getElementById('task-output');
-        const executeButton = document.getElementById('execute-btn');
         const taskContainer = document.getElementById('task-container');
+        const taskOutput = document.getElementById('task-output');
+        const taskDetails = document.getElementById('task-details');
+        const executeButton = document.getElementById('execute-btn');
+        const showAllBtn = document.getElementById('show-all-btn');
 
         if (!inputText.trim()) {
-          output.textContent = "Please enter some task description.";
+          alert("Please enter a task description.");
           return;
         }
 
-        // Disable the button and show the progress bar
+        // Disable button and show progress bar
         submitButton.disabled = true;
         progressBar.style.display = 'block';
         progressBar.style.width = '0%';
-        output.textContent = '';
-        taskOutput.textContent = 'Generating your task...';
         taskContainer.style.display = 'none';
-        
+
         try {
           // Simulate progress bar animation
           const progressInterval = setInterval(() => {
@@ -144,7 +184,6 @@
             body: JSON.stringify({ text: inputText })
           });
 
-          // Stop progress bar animation
           clearInterval(progressInterval);
           progressBar.style.width = '100%';
 
@@ -152,23 +191,47 @@
 
           if (response.ok) {
             taskContainer.style.display = 'block';
-            taskOutput.textContent = `Task generated successfully!`;
-            output.textContent = `Task Description:\n${data.powershellCode}`;
+            taskOutput.textContent = "Task Generated Successfully!";
+            taskDetails.innerHTML = formatExtractedText(data.powershellCode);
             executeButton.style.display = 'block';  // Show execute button
+            showAllBtn.style.display = 'block';  // Show the "Show All" button
             executeButton.onclick = () => executeTask(data.powershellCode);  // Attach execution handler
           } else {
-            output.textContent = `Error: ${data.error}`;
+            alert('Error: ' + data.error);
           }
         } catch (error) {
-          output.textContent = 'Error: Something went wrong.';
+          alert('Error: Something went wrong.');
           console.error(error);
         } finally {
-          // Enable the button and hide the progress bar
+          // Enable button and hide progress bar
           submitButton.disabled = false;
           progressBar.style.display = 'none';
         }
       });
+
+      // Toggle full content visibility
+      document.getElementById('show-all-btn').addEventListener('click', function() {
+        const expandedContent = document.querySelectorAll('.expanded-content');
+        expandedContent.forEach(content => {
+          content.style.display = content.style.display === 'none' ? 'block' : 'none';
+        });
+        this.textContent = this.textContent === 'Show All Content' ? 'Hide Content' : 'Show All Content';
+      });
     });
+
+    // Function to format the extracted text and display it
+    function formatExtractedText(code) {
+      const blockPattern = /<#(.*?)#>/gs;
+      const matches = [...code.matchAll(blockPattern)];
+      let formattedText = '';
+      
+      matches.forEach((match) => {
+        // Format text inside <# ... #> block as a list
+        formattedText += `<ul><li>${match[1].trim().replace(/\n/g, '</li><li>')}</li></ul>`;
+      });
+
+      return formattedText;
+    }
 
     // Function to execute the task
     async function executeTask(script) {
