@@ -134,6 +134,8 @@
       <p id="task-description">Below is the breakdown of the task you requested:</p>
       <div id="task-details"></div>
       <div id="task-complete-details"></div>
+      <!-- Toggle button to show/hide task-complete-details -->
+      <button id="toggle-details-btn" style="margin-top: 10px;">Show Task Complete Details</button>
       <button id="execute-btn" style="display: none;">Confirm and Execute</button>
     </div>
   </div>
@@ -150,7 +152,7 @@
         const taskOutput = document.getElementById('task-output');
         const taskDetails = document.getElementById('task-details');
         const taskCompleteDetails = document.getElementById('task-complete-details');
-        
+        const toggleDetailsBtn = document.getElementById('toggle-details-btn');
         const executeButton = document.getElementById('execute-btn');
 
         if (!inputText.trim()) {
@@ -204,40 +206,46 @@
           progressBar.style.display = 'none';
         }
       });
+
+      // Toggle visibility of task-complete-details
+      document.getElementById('toggle-details-btn').addEventListener('click', function() {
+        const taskCompleteDetails = document.getElementById('task-complete-details');
+        const isDetailsVisible = taskCompleteDetails.style.display === 'block';
+        taskCompleteDetails.style.display = isDetailsVisible ? 'none' : 'block';
+        this.textContent = isDetailsVisible ? 'Show Task Complete Details' : 'Hide Task Complete Details';
+      });
     });
 
     // Function to format the extracted text and display it
     function formatExtractedText(code) {
-  const commentPatterns = [
-    /<#([\s\S]*?)#>/g,            // Multi-line block comments
-    /#([^\n]*)/g,                 // Single-line comments
-    /<##([\s\S]*?)##>/g           // Documentation comments
-  ];
-  
-  let formattedText = '';
+      const commentPatterns = [
+        /<#([\s\S]*?)#>/g,            // Multi-line block comments
+        /#([^\n]*)/g,                 // Single-line comments
+        /<##([\s\S]*?)##>/g           // Documentation comments
+      ];
 
-  commentPatterns.forEach((pattern) => {
-    const matches = [...code.matchAll(pattern)];
-    matches.forEach((match) => {
-      // Format each matched comment
-      formattedText += `<ul><li class="expanded-content">${match[1].trim().replace(/\n/g, '</li><li>')}</li></ul>`;
-    });
-  });
+      let formattedText = '';
 
-  return formattedText;
-}
-// Function to format the extracted text and display it in small text format
-function formatCompleteText(code) {
-    let formattedText = '';
-    code.split('\n').forEach((line) => {
+      commentPatterns.forEach((pattern) => {
+        const matches = [...code.matchAll(pattern)];
+        matches.forEach((match) => {
+          // Format each matched comment
+          formattedText += `<ul><li class="expanded-content">${match[1].trim().replace(/\n/g, '</li><li>')}</li></ul>`;
+        });
+      });
+
+      return formattedText;
+    }
+
+    // Function to format the extracted text and display it in small text format
+    function formatCompleteText(code) {
+      let formattedText = '';
+      code.split('\n').forEach((line) => {
         // Format each line with small text styling
         formattedText += `{${line.trim()}}\n`;
-    });
-    return formattedText.trim();
-}
-
-
-
+      });
+      return formattedText.trim();
+    }
 
     // Function to execute the task
     async function executeTask(script) {
@@ -250,13 +258,12 @@ function formatCompleteText(code) {
 
         const data = await response.json();
         if (response.ok) {
-          alert('Task executed successfully!');
+          alert("Task Executed Successfully!");
         } else {
-          alert('Failed to execute task: ' + data.error);
+          alert("Execution Failed: " + data.error);
         }
       } catch (error) {
-        alert('Error: Unable to execute task.');
-        console.error(error);
+        alert("Execution Failed: " + error.message);
       }
     }
   </script>
