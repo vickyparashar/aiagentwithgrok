@@ -108,7 +108,7 @@
       padding-left: 20px;
       color: green;
     }
-    #task-complete-details{
+    #task-complete-details {
       display: none;
       list-style-type: disc;
       padding-left: 20px;
@@ -117,6 +117,12 @@
     }
     .expanded-content {
       display: none;
+    }
+    /* Added CSS to allow scrolling */
+    #task-details, #task-complete-details {
+      max-height: 300px; /* Adjust this value based on your design */
+      overflow-y: auto;  /* Enable vertical scrolling */
+      margin-bottom: 10px; /* Add some space between elements */
     }
   </style>
 </head>
@@ -240,11 +246,11 @@
     // Function to format the extracted text and display it in small text format
     function formatCompleteText(code) {
       let formattedText = '';
-      code.split('\n').forEach((line) => {
+      code.split(/\r?\n/).forEach((line) => {
         // Format each line with small text styling
-        formattedText += `{${line.trim()}}\n`;
+        formattedText += `<div>${line.trim()}</div>`;
       });
-      return formattedText.trim();
+      return formattedText; // No need for additional .trim() here
     }
 
     // Function to execute the task
@@ -256,14 +262,14 @@
           body: JSON.stringify({ script })
         });
 
-        const data = await response.json();
         if (response.ok) {
-          alert("Task Executed Successfully!");
+          alert('Task executed successfully!');
         } else {
-          alert("Execution Failed: " + data.error);
+          alert('Execution failed');
         }
       } catch (error) {
-        alert("Execution Failed: " + error.message);
+        console.error('Execution error:', error);
+        alert('Error executing the task');
       }
     }
   </script>
