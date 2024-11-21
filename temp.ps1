@@ -12,7 +12,7 @@ $folderPath = "C:\Vicky\tools\test\"
 # Get all files in the folder
 $files = Get-ChildItem -Path $folderPath -File
 
-# Count the number of files before deletion
+# Count the number of files
 $fileCount = $files.Count
 
 # Delete each file
