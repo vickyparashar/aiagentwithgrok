@@ -3,29 +3,55 @@
 .SYNOPSIS
     This script will:
     - Delete all files inside the specified folder.
-    - Log all actions and errors to a file named '8f670a1e-d167-463d-be42-d60463bf882a_task.log' in the current directory/output/.
-    - Use try-catch blocks for error handling.
+    - Log each action and any errors to a file.
+    - Use error handling to manage exceptions.
+
+.NOTES
+    Log file: 2ce222e7-2c92-47e9-a71f-307ed17982fc_task.log
+    Log directory: .\output\
 #>
 
-$logPath = "$PSScriptRoot\output\8f670a1e-d167-463d-be42-d60463bf882a_task.log"
-$targetFolder = "C:\Vicky\tools\test"
+# Ensure the output directory exists
+$logDir = ".\output\"
+if (-not (Test-Path -Path $logDir)) {
+    New-Item -ItemType Directory -Path $logDir | Out-Null
+}
+
+# Define log file path
+$logFile = Join-Path -Path $logDir -ChildPath "2ce222e7-2c92-47e9-a71f-307ed17982fc_task.log"
+
+# Function to log messages
+function Write-Log {
+    param([string]$message)
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    "$timestamp - $message" | Out-File -FilePath $logFile -Append
+}
+
+# Target directory
+$targetDir = "C:\Vicky\tools\test\"
 
 try {
-    if (-not (Test-Path -Path $targetFolder)) {
-        throw "The specified folder does not exist: $targetFolder"
-    }
-
-    $files = Get-ChildItem -Path $targetFolder -File
-    foreach ($file in $files) {
-        try {
-            Remove-Item -Path $file.FullName -Force
-            Add-Content -Path $logPath -Value "Deleted file: $($file.FullName)"
-        } catch {
-            Add-Content -Path $logPath -Value "Failed to delete file $($file.FullName): $_"
+    # Check if the directory exists
+    if (Test-Path -Path $targetDir) {
+        Write-Log "Directory found: $targetDir"
+        
+        # Get all files in the directory
+        $files = Get-ChildItem -Path $targetDir -File
+        
+        # Delete each file
+        foreach ($file in $files) {
+            try {
+                Remove-Item -Path $file.FullName -Force
+                Write-Log "Deleted file: $($file.FullName)"
+            } catch {
+                Write-Log "Failed to delete file: $($file.FullName). Error: $_"
+            }
         }
+        Write-Log "File deletion process completed."
+    } else {
+        Write-Log "Directory not found: $targetDir"
     }
-    Add-Content -Path $logPath -Value "Script completed successfully."
 } catch {
-    Add-Content -Path $logPath -Value "An error occurred: $_"
+    Write-Log "An error occurred: $_"
 }
 # ```
