@@ -26,13 +26,18 @@ app.get('/', (req, res) => {
 app.post('/generate', async (req, res) => {
   const inputText = req.body.text;
   const xaiApiKey = "xai-1YU6eJGnUgOKmJR6IkBl3zaPy5fNKGjFtN8Dg4zPkdvssXtqWEIlY8zb6LHlS9v7XE9uXVSz3T0h80kQ";
-
+    // Generate a unique filename using UUID
+    const uniqueeName = `${uuidv4()}`;
+  // Generate a unique filename using UUID
+      const uniqueFilename = `${uniqueeName}_task.ps1`;
+        // Generate a unique filename using UUID
+        const uniqueLogFileName = `${uniqueeName}_task.log`;
   const jsonPayload = {
     messages: [
       {
         role: "system",
         content: `Your task is to first provide a simple, bullet-point explanation of what the script will do, and format it as comments in the PowerShell script.
-  Then, generate only the executable PowerShell code without any additional explanations, ensuring the script is ready to run directly in PowerShell. 
+  Then, generate only the executable PowerShell code without any additional explanations, ensuring the script is ready to run directly in PowerShell with add try catch block and with proper logging each detail in this file log everything so user can now its suggest or faiure if failure then what was that log filename shoudld be ${uniqueLogFileName} at current directory/output/ where this powershell script is executing. 
   Do not include any extra details outside of the explanation in comments and the executable code.`
       },
       {
@@ -71,8 +76,7 @@ app.post('/generate', async (req, res) => {
     // Join the modified lines back into a single string
     taskDescription = lines.join('\n');
 
-    // Generate a unique filename using UUID
-    const uniqueFilename = `${uuidv4()}_task.ps1`;
+  
     const filePath = path.join(__dirname, 'output', uniqueFilename);
 
     // Write the task code to a file inside the output folder
